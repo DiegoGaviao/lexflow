@@ -50,16 +50,6 @@ export default function Login() {
     setIsSubmitting(false);
   };
 
-  const fillDemo = (type: "admin" | "adv1" | "adv2") => {
-    const demos = {
-      admin: { email: "admin@lexflow.com.br", password: "lexflow123" },
-      adv1: { email: "maria@lexflow.com.br", password: "lexflow123" },
-      adv2: { email: "joao@lexflow.com.br", password: "lexflow123" },
-    };
-    setEmail(demos[type].email);
-    setPassword(demos[type].password);
-  };
-
   return (
     <div className="min-h-screen bg-background flex">
       {/* Left panel */}
@@ -178,29 +168,6 @@ export default function Login() {
             </button>
           </div>
 
-          {/* Demo accounts */}
-          {mode === "login" && (
-            <div className="mt-6 p-4 bg-secondary/50 rounded-xl border border-border">
-              <p className="text-xs font-semibold text-muted-foreground mb-3">👋 Contas demo para testar:</p>
-              <div className="space-y-2">
-                {[
-                  { label: "Admin", type: "admin" as const, desc: "admin@lexflow.com.br" },
-                  { label: "Advogada Maria", type: "adv1" as const, desc: "maria@lexflow.com.br" },
-                  { label: "Advogado João", type: "adv2" as const, desc: "joao@lexflow.com.br" },
-                ].map((d) => (
-                  <button
-                    key={d.type}
-                    onClick={() => fillDemo(d.type)}
-                    className="w-full flex items-center justify-between px-3 py-2 bg-card border border-border rounded-lg hover:border-primary/40 transition-colors text-left"
-                  >
-                    <span className="text-xs font-medium text-foreground">{d.label}</span>
-                    <span className="text-[10px] text-muted-foreground">{d.desc}</span>
-                  </button>
-                ))}
-              </div>
-              <p className="text-[10px] text-muted-foreground mt-2">* Crie essas contas primeiro clicando em "Criar agora"</p>
-            </div>
-          )}
         </div>
       </div>
     </div>
