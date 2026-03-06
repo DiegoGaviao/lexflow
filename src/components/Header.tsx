@@ -59,41 +59,48 @@ export function Header() {
     setDatajudResult(null);
 
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 20000);
+    const timeoutId = setTimeout(() => {
+      controller.abort();
+      console.warn("Timeout de 60s atingido no Header para:", cnj);
+    }, 60000);
 
     try {
-      console.log("Chamando Edge Function para:", cnj);
+      console.log("Iniciando consulta DataJud para:", cnj);
       const { data, error } = await supabase.functions.invoke("consulta-datajud", {
         body: { numero_cnj: cnj },
         signal: controller.signal
       }) as any;
 
       if (error) {
-        console.error("Erro na Edge Function:", error);
-        // Tratar erro de "não encontrado" (404) que o Supabase pode retornar no campo error
-        if (error.status === 404 || (error.message && error.message.includes("404"))) {
-          setDatajudError("Processo não encontrado no DataJud. Verifique o número ou tribunal.");
+        console.error("Erro retornado pelo Supabase (Invoke):", error);
+        if (error.name === "AbortError" || error.message?.includes("Abort")) {
+          setDatajudError("O Tribunal demorou muito para responder (Timeout). Tente novamente em instantes.");
+        } else if (error.status === 404 || error.message?.includes("404")) {
+          setDatajudError("Processo não encontrado no DataJud. Verifique o número.");
         } else {
-          setDatajudError(error.message || "Erro de conexão com o servidor");
+          setDatajudError("Falha na conexão com o servidor de busca.");
         }
         return;
       }
 
       if (data?.error) {
+        console.warn("Erro lógico na função:", data.error);
         setDatajudError(data.error);
       } else {
+        console.log("Dados recebidos com sucesso!");
         setDatajudResult(data);
       }
     } catch (e: any) {
-      console.error("Exception ao consultar DataJud:", e);
+      console.error("Exceção capturada no Header:", e);
       if (e.name === "AbortError") {
-        setDatajudError("Tempo limite esgotado (Tribunal demorou demais).");
+        setDatajudError("Tempo de espera excedido (60s). O sistema do Tribunal pode estar instável.");
       } else {
-        setDatajudError(e.message || "Falha ao consultar DataJud");
+        setDatajudError("Erro inesperado ao consultar. Tente novamente.");
       }
     } finally {
       clearTimeout(timeoutId);
       setDatajudLoading(false);
+      console.log("Busca DataJud finalizada.");
     }
   }, []);
 

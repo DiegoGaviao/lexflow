@@ -111,7 +111,7 @@ Deno.serve(async (req) => {
     console.log(`Consultando DataJud: ${endpoint} para CNJ ${cnjLimpo}`);
 
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 15000);
+    const timeout = setTimeout(() => controller.abort(), 55000); // 55s timeout
 
     const resp = await fetch(endpoint, {
       method: "POST",
