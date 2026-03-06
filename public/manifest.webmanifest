@@ -1,0 +1,27 @@
+{
+    "name": "Lex Flow - Inteligência Jurídica",
+    "short_name": "Lex Flow",
+    "description": "Dashboard inteligente para gestão de processos e prazos jurídicos.",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#020617",
+    "theme_color": "#2563eb",
+    "icons": [
+        {
+            "src": "/vite.svg",
+            "sizes": "any",
+            "type": "image/svg+xml",
+            "purpose": "any"
+        },
+        {
+            "src": "/vite.svg",
+            "sizes": "192x192",
+            "type": "image/svg+xml"
+        },
+        {
+            "src": "/vite.svg",
+            "sizes": "512x512",
+            "type": "image/svg+xml"
+        }
+    ]
+}

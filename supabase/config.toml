@@ -1,0 +1,4 @@
+project_id = "xgfwveexorosufyewcue"
+
+[functions.consulta-datajud]
+verify_jwt = false

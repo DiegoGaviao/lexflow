@@ -1,0 +1,269 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+/* LEX_FLOW Design System — Linear/Vercel SaaS Premium */
+
+@layer base {
+  :root {
+    /* DARK MODE — Refined, near-black like Linear */
+    --background: 225 15% 8%;
+    --foreground: 210 20% 93%;
+
+    --card: 225 14% 11%;
+    --card-foreground: 210 20% 93%;
+
+    --popover: 225 14% 10%;
+    --popover-foreground: 210 20% 93%;
+
+    /* Electric blue primary */
+    --primary: 220 70% 55%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 220 80% 65%;
+
+    /* Surfaces */
+    --secondary: 225 12% 14%;
+    --secondary-foreground: 210 15% 78%;
+
+    --muted: 225 10% 16%;
+    --muted-foreground: 220 10% 50%;
+
+    --accent: 220 70% 55%;
+    --accent-foreground: 0 0% 100%;
+
+    /* Status colors */
+    --urgente: 0 72% 52%;
+    --urgente-foreground: 0 0% 100%;
+    --urgente-bg: 0 50% 12%;
+
+    --atencao: 38 92% 50%;
+    --atencao-foreground: 0 0% 100%;
+    --atencao-bg: 38 60% 10%;
+
+    --saudavel: 160 60% 40%;
+    --saudavel-foreground: 0 0% 100%;
+    --saudavel-bg: 160 40% 8%;
+
+    --vencido: 0 90% 38%;
+    --vencido-bg: 0 60% 8%;
+
+    --destructive: 0 72% 52%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 225 10% 16%;
+    --input: 225 12% 14%;
+    --ring: 220 70% 55%;
+
+    --radius: 0.5rem;
+
+    /* List category colors */
+    --list-vip: 270 60% 60%;
+    --list-trabalhista: 38 92% 50%;
+    --list-urgente: 0 72% 52%;
+
+    /* Sidebar — darker panel */
+    --sidebar-background: 225 18% 6%;
+    --sidebar-foreground: 220 12% 65%;
+    --sidebar-primary: 220 70% 55%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 225 12% 12%;
+    --sidebar-accent-foreground: 210 15% 85%;
+    --sidebar-border: 225 12% 12%;
+    --sidebar-ring: 220 70% 55%;
+
+    /* Effects */
+    --glow-primary: 0 0 24px hsl(220 70% 55% / 0.2);
+    --glow-urgente: 0 0 16px hsl(0 72% 52% / 0.25);
+
+    --gradient-primary: linear-gradient(135deg, hsl(220 70% 45%), hsl(220 80% 60%));
+    --gradient-card: linear-gradient(145deg, hsl(225 14% 12%), hsl(225 14% 9%));
+    --gradient-urgente: linear-gradient(135deg, hsl(0 50% 14%), hsl(0 40% 10%));
+    --gradient-atencao: linear-gradient(135deg, hsl(38 60% 13%), hsl(38 50% 9%));
+    --gradient-saudavel: linear-gradient(135deg, hsl(160 40% 11%), hsl(160 30% 8%));
+  }
+
+  /* LIGHT MODE */
+  .light {
+    --background: 0 0% 98%;
+    --foreground: 225 20% 10%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 225 20% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 225 20% 10%;
+
+    --primary: 220 80% 50%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 220 80% 62%;
+
+    --secondary: 220 14% 92%;
+    --secondary-foreground: 225 20% 15%;
+
+    --muted: 220 10% 90%;
+    --muted-foreground: 220 8% 45%;
+
+    --accent: 220 80% 50%;
+    --accent-foreground: 0 0% 100%;
+
+    --urgente: 0 84% 40%;
+    --urgente-foreground: 0 0% 100%;
+    --urgente-bg: 0 100% 96%;
+
+    --atencao: 38 100% 38%;
+    --atencao-foreground: 0 0% 100%;
+    --atencao-bg: 38 100% 94%;
+
+    --saudavel: 160 70% 32%;
+    --saudavel-foreground: 0 0% 100%;
+    --saudavel-bg: 160 70% 94%;
+
+    --vencido: 0 90% 34%;
+    --vencido-bg: 0 100% 96%;
+
+    --destructive: 0 84% 40%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 10% 90%;
+    --input: 220 10% 92%;
+    --ring: 220 80% 50%;
+
+    --list-vip: 270 60% 50%;
+    --list-trabalhista: 38 100% 38%;
+    --list-urgente: 0 84% 40%;
+
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 225 12% 35%;
+    --sidebar-primary: 220 80% 50%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 14% 95%;
+    --sidebar-accent-foreground: 225 20% 15%;
+    --sidebar-border: 220 10% 92%;
+    --sidebar-ring: 220 80% 50%;
+
+    --glow-primary: 0 0 24px hsl(220 80% 50% / 0.15);
+    --glow-urgente: 0 0 16px hsl(0 84% 40% / 0.15);
+
+    --gradient-primary: linear-gradient(135deg, hsl(220 80% 44%), hsl(220 80% 58%));
+    --gradient-card: linear-gradient(145deg, hsl(0 0% 100%), hsl(220 14% 97%));
+    --gradient-urgente: linear-gradient(135deg, hsl(0 100% 96%), hsl(0 100% 98%));
+    --gradient-atencao: linear-gradient(135deg, hsl(38 100% 94%), hsl(38 100% 97%));
+    --gradient-saudavel: linear-gradient(135deg, hsl(160 70% 94%), hsl(160 70% 97%));
+  }
+
+  * {
+    @apply border-border;
+    box-sizing: border-box;
+  }
+
+  html {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    letter-spacing: -0.011em;
+  }
+
+  /* Minimal scrollbar — Linear style */
+  ::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--border));
+    border-radius: 10px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground) / 0.5);
+  }
+}
+
+@layer components {
+  /* Status badge variants */
+  .badge-urgente {
+    background: hsl(var(--urgente-bg));
+    color: hsl(var(--urgente));
+    border: 1px solid hsl(var(--urgente) / 0.2);
+  }
+  .badge-atencao {
+    background: hsl(var(--atencao-bg));
+    color: hsl(var(--atencao));
+    border: 1px solid hsl(var(--atencao) / 0.2);
+  }
+  .badge-saudavel {
+    background: hsl(var(--saudavel-bg));
+    color: hsl(var(--saudavel));
+    border: 1px solid hsl(var(--saudavel) / 0.2);
+  }
+  .badge-vencido {
+    background: hsl(var(--vencido-bg));
+    color: hsl(var(--vencido));
+    border: 1px solid hsl(var(--vencido) / 0.2);
+  }
+
+  /* Card hover — subtle lift */
+  .card-hover {
+    transition: all 0.15s ease;
+  }
+  .card-hover:hover {
+    border-color: hsl(var(--primary) / 0.3);
+    box-shadow: 0 0 0 1px hsl(var(--primary) / 0.1);
+    transform: translateY(-1px);
+  }
+
+  /* Pulse for critical badges */
+  .pulse-urgente {
+    animation: pulse-red 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse-red {
+    0%, 100% { box-shadow: 0 0 0 0 hsl(var(--urgente) / 0.35); }
+    50% { box-shadow: 0 0 0 5px hsl(var(--urgente) / 0); }
+  }
+
+  /* Gradient text */
+  .text-gradient {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Glass surface — Glassmorphism for modals & dropdowns */
+  .glass {
+    background: hsl(var(--card) / 0.75);
+    backdrop-filter: blur(20px) saturate(1.4);
+    -webkit-backdrop-filter: blur(20px) saturate(1.4);
+    border: 1px solid hsl(var(--border) / 0.4);
+  }
+
+  /* Dot indicator */
+  .list-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* Glassmorphism for dialog/modal overlays */
+  [data-radix-popper-content-wrapper] > *,
+  [role="dialog"] > * {
+    /* Inherit glass from parent if applied */
+  }
+  .glass-modal {
+    background: hsl(var(--card) / 0.8) !important;
+    backdrop-filter: blur(24px) saturate(1.5) !important;
+    -webkit-backdrop-filter: blur(24px) saturate(1.5) !important;
+    border: 1px solid hsl(var(--border) / 0.3) !important;
+  }
+}
