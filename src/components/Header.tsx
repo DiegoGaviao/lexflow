@@ -53,22 +53,46 @@ export function Header() {
   const isCNJ = (q: string) => /^\d{7}-?\d{2}\.?\d{4}\.?\d\.?\d{2}\.?\d{4}$/.test(q.replace(/\s/g, ""));
 
   const searchDataJud = useCallback(async (cnj: string) => {
+    if (!cnj) return;
     setDatajudLoading(true);
     setDatajudError(null);
     setDatajudResult(null);
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 20000);
+
     try {
+      console.log("Chamando Edge Function para:", cnj);
       const { data, error } = await supabase.functions.invoke("consulta-datajud", {
         body: { numero_cnj: cnj },
-      });
-      if (error) throw error;
+        signal: controller.signal
+      }) as any;
+
+      if (error) {
+        console.error("Erro na Edge Function:", error);
+        // Tratar erro de "não encontrado" (404) que o Supabase pode retornar no campo error
+        if (error.status === 404 || (error.message && error.message.includes("404"))) {
+          setDatajudError("Processo não encontrado no DataJud. Verifique o número ou tribunal.");
+        } else {
+          setDatajudError(error.message || "Erro de conexão com o servidor");
+        }
+        return;
+      }
+
       if (data?.error) {
         setDatajudError(data.error);
       } else {
         setDatajudResult(data);
       }
     } catch (e: any) {
-      setDatajudError(e.message || "Erro ao consultar DataJud");
+      console.error("Exception ao consultar DataJud:", e);
+      if (e.name === "AbortError") {
+        setDatajudError("Tempo limite esgotado (Tribunal demorou demais).");
+      } else {
+        setDatajudError(e.message || "Falha ao consultar DataJud");
+      }
     } finally {
+      clearTimeout(timeoutId);
       setDatajudLoading(false);
     }
   }, []);

@@ -110,19 +110,32 @@ Deno.serve(async (req) => {
   try {
     console.log(`Consultando DataJud: ${endpoint} para CNJ ${cnjLimpo}`);
 
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 15000);
+
     const resp = await fetch(endpoint, {
       method: "POST",
       headers: {
-        "Authorization": "APIKey cDZHYzlZa0JadVREZDJCendQbXY6SkJlTzNjLV9TRENyQk1RdnFKZGRQdw==",
+        "Authorization": `APIKey ${Deno.env.get("DATAJUD_API_KEY")}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify(body),
+      signal: controller.signal,
     });
+
+    clearTimeout(timeout);
 
     if (!resp.ok) {
       const text = await resp.text();
       console.error(`DataJud error ${resp.status}:`, text);
-      throw new Error(`DataJud retornou ${resp.status}`);
+      return new Response(JSON.stringify({
+        error: "O serviço DataJud (CNJ) retornou um erro ou está instável.",
+        detalhe: `Status ${resp.status}`,
+        origem: sigla
+      }), {
+        status: resp.status === 401 ? 401 : 502,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     const dataJud = await resp.json();
@@ -139,7 +152,7 @@ Deno.serve(async (req) => {
 
     // Extract movimentacoes
     const movs: Movimentacao[] = (src.movimentos || src.movimentacoes || []).map((m: any) => {
-      const descricao = m.complementosTabelados?.map((c: any) => c.descricao || c.nome).join(" – ") 
+      const descricao = m.complementosTabelados?.map((c: any) => c.descricao || c.nome).join(" – ")
         || m.nome || m.descricao || "Movimentação";
       const tipoRaw = (m.nome || m.descricao || "").toLowerCase();
       let tipo: Movimentacao["tipo"] = "outro";
@@ -158,7 +171,7 @@ Deno.serve(async (req) => {
     const partes = src.partes || src.polos || [];
     let autor = "";
     let reu = "";
-    
+
     if (Array.isArray(partes)) {
       for (const polo of partes) {
         const pessoas = polo.partes || polo.pessoas || [polo];
