@@ -54,53 +54,50 @@ export function Header() {
 
   const searchDataJud = useCallback(async (cnj: string) => {
     if (!cnj) return;
+
+    // Pequeno delay para garantir que o estado de loading apareceu
     setDatajudLoading(true);
     setDatajudError(null);
     setDatajudResult(null);
 
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => {
-      controller.abort();
-      console.warn("Timeout de 60s atingido no Header para:", cnj);
-    }, 60000);
+    console.log("🚀 Iniciando Busca Direta para:", cnj);
 
     try {
-      console.log("Iniciando consulta DataJud para:", cnj);
-      const { data, error } = await supabase.functions.invoke("consulta-datajud", {
-        body: { numero_cnj: cnj },
-        signal: controller.signal
-      }) as any;
+      const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/consulta-datajud`;
+      const key = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
-      if (error) {
-        console.error("Erro retornado pelo Supabase (Invoke):", error);
-        if (error.name === "AbortError" || error.message?.includes("Abort")) {
-          setDatajudError("O Tribunal demorou muito para responder (Timeout). Tente novamente em instantes.");
-        } else if (error.status === 404 || error.message?.includes("404")) {
-          setDatajudError("Processo não encontrado no DataJud. Verifique o número.");
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${key}`,
+          'apikey': key
+        },
+        body: JSON.stringify({ numero_cnj: cnj })
+      });
+
+      console.log("📡 Resposta recebida. Status:", response.status);
+
+      if (!response.ok) {
+        const errData = await response.json();
+        console.error("❌ Erro da Função:", errData);
+        if (response.status === 404) {
+          setDatajudError("Processo não encontrado no DataJud.");
         } else {
-          setDatajudError("Falha na conexão com o servidor de busca.");
+          setDatajudError(errData.error || "Erro ao consultar o tribunal.");
         }
         return;
       }
 
-      if (data?.error) {
-        console.warn("Erro lógico na função:", data.error);
-        setDatajudError(data.error);
-      } else {
-        console.log("Dados recebidos com sucesso!");
-        setDatajudResult(data);
-      }
+      const data = await response.json();
+      console.log("✅ Dados carregados com sucesso!");
+      setDatajudResult(data);
+
     } catch (e: any) {
-      console.error("Exceção capturada no Header:", e);
-      if (e.name === "AbortError") {
-        setDatajudError("Tempo de espera excedido (60s). O sistema do Tribunal pode estar instável.");
-      } else {
-        setDatajudError("Erro inesperado ao consultar. Tente novamente.");
-      }
+      console.error("🔥 Exceção Fatal na Busca:", e);
+      setDatajudError("Falha crítica na conexão. Verifique sua internet.");
     } finally {
-      clearTimeout(timeoutId);
       setDatajudLoading(false);
-      console.log("Busca DataJud finalizada.");
     }
   }, []);
 

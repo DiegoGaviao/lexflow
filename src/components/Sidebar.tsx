@@ -299,7 +299,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
         </div>
         {!collapsed && (
           <div className="px-2.5 pt-2 pb-1 text-[10px] text-muted-foreground/30 text-center font-mono uppercase tracking-tighter">
-            v1.0.8-RELOAD-CONFIRMED
+            v1.0.9-FETCH-DIRECT
           </div>
         )}
       </div>
