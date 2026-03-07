@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { Bell, Search, ChevronDown, Sun, Moon, LogOut, User, Settings, Loader2, Plus, Scale } from "lucide-react";
+import { Bell, Search, ChevronDown, Sun, Moon, LogOut, User, Settings, Loader2, Plus, Scale, RefreshCw } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -116,10 +116,13 @@ export function Header() {
     return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
   }, [searchQuery, searchDataJud]);
 
+  const [isSaving, setIsSaving] = useState(false);
+
   const handleSelectDataJudResult = async () => {
     if (!datajudResult) return;
     try {
-      setDatajudLoading(true);
+      setIsSaving(true);
+      console.log("💾 Salvando processo na base local...");
       const newProc = await addProcesso({
         numero: datajudResult.numero,
         tribunal: datajudResult.tribunal,
@@ -131,19 +134,24 @@ export function Header() {
         movimentacoes: datajudResult.movimentacoes,
       });
 
-      toast({ title: "Processo identificado!", description: "Dados sincronizados com sucesso." });
+      console.log("✨ Processo salvo, ID:", newProc?.id);
+
+      // Fecha e limpa ANTES de navegar
       setCommandOpen(false);
       setSearchQuery("");
       setDatajudResult(null);
+      setDatajudError(null);
 
-      // Navega para os detalhes
+      toast({ title: "Processo sincronizado", description: "Dados salvos e prontos para consulta." });
+
       if (newProc?.id) {
         navigate(`/processos/${newProc.id}`);
       }
     } catch (e: any) {
-      toast({ title: "Erro ao processar", description: e.message, variant: "destructive" });
+      console.error("❌ Erro ao salvar processo:", e);
+      toast({ title: "Erro ao salvar", description: "Não foi possível cadastrar o processo.", variant: "destructive" });
     } finally {
-      setDatajudLoading(false);
+      setIsSaving(false);
     }
   };
 
@@ -288,7 +296,7 @@ export function Header() {
           )}
 
           {/* DataJud loading */}
-          {datajudLoading && (
+          {datajudLoading && !isSaving && (
             <div className="flex flex-col items-center justify-center gap-2 py-8 text-sm text-muted-foreground animate-pulse">
               <Loader2 className="h-5 w-5 animate-spin text-primary" />
               <div className="text-center">
@@ -298,15 +306,26 @@ export function Header() {
             </div>
           )}
 
+          {/* Syncing/Saving state */}
+          {isSaving && (
+            <div className="flex flex-col items-center justify-center gap-3 py-10 text-sm text-muted-foreground bg-primary/5 rounded-xl mx-4 mb-4 border border-primary/20">
+              <RefreshCw className="h-6 w-6 animate-spin text-primary" />
+              <div className="text-center">
+                <p className="font-bold text-foreground">Sincronizando com Lex Flow...</p>
+                <p className="text-[10px] mt-1 px-4">Gravando andamentos e dados das partes no seu banco de dados.</p>
+              </div>
+            </div>
+          )}
+
           {/* DataJud error */}
-          {datajudError && !datajudLoading && (
+          {datajudError && !datajudLoading && !isSaving && (
             <div className="py-4 px-4 text-center text-sm text-muted-foreground">
               {datajudError}
             </div>
           )}
 
           {/* DataJud result */}
-          {datajudResult && !datajudLoading && (
+          {datajudResult && !datajudLoading && !isSaving && (
             <CommandGroup heading="Resultado DataJud (Global)">
               <CommandItem
                 value={`datajud-${datajudResult.numero}`}

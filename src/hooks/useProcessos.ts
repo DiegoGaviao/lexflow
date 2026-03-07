@@ -97,14 +97,18 @@ export function useProcessos() {
     }) => {
       if (!user) throw new Error("Não autenticado");
 
-      // Verificar se já existe
-      const { data: existing } = await (supabase
+      // Verificar se já existe (usando maybeSingle para evitar erro se não encontrar)
+      const { data: existing, error: checkError } = await (supabase
         .from(lfTable("processos") as any)
         .select("id")
         .eq("user_id", user.id)
         .eq("numero", processoData.numero)
         .is("deleted_at", null)
-        .single() as any);
+        .maybeSingle() as any);
+
+      if (checkError) {
+        console.warn("Erro ao verificar processo existente:", checkError);
+      }
 
       if (existing) {
         console.log("Processo já cadastrado:", existing.id);
