@@ -119,11 +119,14 @@ export function Header() {
   const [isSaving, setIsSaving] = useState(false);
 
   const handleSelectDataJudResult = async () => {
-    if (!datajudResult) return;
+    if (!datajudResult || isSaving) return;
+
     try {
       setIsSaving(true);
-      console.log("💾 Salvando processo na base local...");
-      const newProc = await addProcesso({
+      console.log("💾 Iniciando sincronização local para:", datajudResult.numero);
+
+      // Proteção de Timeout de 10s para a gravação no Supabase
+      const savePromise = addProcesso({
         numero: datajudResult.numero,
         tribunal: datajudResult.tribunal,
         tribunal_sigla: datajudResult.tribunal_sigla,
@@ -134,22 +137,45 @@ export function Header() {
         movimentacoes: datajudResult.movimentacoes,
       });
 
-      console.log("✨ Processo salvo, ID:", newProc?.id);
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error("TIME_OUT_LOCAL_DB")), 10000)
+      );
 
-      // Fecha e limpa ANTES de navegar
+      console.log("⏳ Aguardando confirmação do banco de dados...");
+      const newProc = await Promise.race([savePromise, timeoutPromise]) as any;
+
+      console.log("✨ Processo sincronizado e salvo com sucesso!");
+
+      // Fecha o comando e limpa estados ANTES da navegação
       setCommandOpen(false);
       setSearchQuery("");
       setDatajudResult(null);
       setDatajudError(null);
 
-      toast({ title: "Processo sincronizado", description: "Dados salvos e prontos para consulta." });
+      toast({
+        title: "Processo Sincronizado",
+        description: "Redirecionando para os detalhes..."
+      });
 
       if (newProc?.id) {
         navigate(`/processos/${newProc.id}`);
       }
     } catch (e: any) {
-      console.error("❌ Erro ao salvar processo:", e);
-      toast({ title: "Erro ao salvar", description: "Não foi possível cadastrar o processo.", variant: "destructive" });
+      console.error("🔥 Erro Fatal ao Salvar:", e);
+
+      let errorMsg = "Ocorreu um erro ao gravar os dados. Tente novamente.";
+      if (e.message === "TIME_OUT_LOCAL_DB") {
+        errorMsg = "O banco de dados demorou muito para responder (10s). Atualize a página e tente de novo.";
+      } else if (e.message?.includes("JWT")) {
+        errorMsg = "Sua sessão expirou. Por favor, faça login novamente.";
+      }
+
+      setDatajudError(errorMsg);
+      toast({ title: "Falha na Gravação", description: errorMsg, variant: "destructive" });
+
+      // Alerta amigável mas firme para o usuário
+      window.confirm("Atenção: Houve um atraso na conexão com o banco de dados. Se o problema persistir, por favor limpe o cache do site ou faça login novamente.");
+
     } finally {
       setIsSaving(false);
     }
