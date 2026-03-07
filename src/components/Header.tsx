@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { Bell, Search, ChevronDown, Sun, Moon, LogOut, User, Settings, Loader2, Plus } from "lucide-react";
+import { Bell, Search, ChevronDown, Sun, Moon, LogOut, User, Settings, Loader2, Plus, Scale } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -116,10 +116,11 @@ export function Header() {
     return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
   }, [searchQuery, searchDataJud]);
 
-  const handleAddFromDataJud = async () => {
+  const handleSelectDataJudResult = async () => {
     if (!datajudResult) return;
     try {
-      await addProcesso({
+      setDatajudLoading(true);
+      const newProc = await addProcesso({
         numero: datajudResult.numero,
         tribunal: datajudResult.tribunal,
         tribunal_sigla: datajudResult.tribunal_sigla,
@@ -129,12 +130,20 @@ export function Header() {
         uf: datajudResult.uf,
         movimentacoes: datajudResult.movimentacoes,
       });
-      toast({ title: "Processo adicionado!", description: `${datajudResult.numero} cadastrado com sucesso.` });
+
+      toast({ title: "Processo identificado!", description: "Dados sincronizados com sucesso." });
       setCommandOpen(false);
       setSearchQuery("");
       setDatajudResult(null);
+
+      // Navega para os detalhes
+      if (newProc?.id) {
+        navigate(`/processos/${newProc.id}`);
+      }
     } catch (e: any) {
-      toast({ title: "Erro ao adicionar", description: e.message, variant: "destructive" });
+      toast({ title: "Erro ao processar", description: e.message, variant: "destructive" });
+    } finally {
+      setDatajudLoading(false);
     }
   };
 
@@ -298,18 +307,30 @@ export function Header() {
 
           {/* DataJud result */}
           {datajudResult && !datajudLoading && (
-            <CommandGroup heading="Resultado DataJud (CNJ)">
-              <CommandItem value={`datajud-${datajudResult.numero}`} onSelect={handleAddFromDataJud}>
-                <div className="flex items-center gap-3 w-full">
-                  <Plus className="h-4 w-4 text-primary shrink-0" />
-                  <div className="flex flex-col gap-0.5 flex-1 min-w-0">
-                    <span className="text-xs font-mono text-muted-foreground">{datajudResult.numero}</span>
-                    <span className="text-sm font-medium truncate">{datajudResult.assunto}</span>
-                    <span className="text-xs text-muted-foreground truncate">
-                      {datajudResult.tribunal} • {[datajudResult.autor, datajudResult.reu].filter(Boolean).join(" × ")}
-                    </span>
+            <CommandGroup heading="Resultado DataJud (Global)">
+              <CommandItem
+                value={`datajud-${datajudResult.numero}`}
+                onSelect={handleSelectDataJudResult}
+                className="cursor-pointer bg-primary/5 hover:bg-primary/10 border border-primary/20 rounded-lg p-3 mx-2 transition-all"
+              >
+                <div className="flex items-center gap-4 w-full">
+                  <div className="h-10 w-10 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center shrink-0">
+                    <Scale className="h-5 w-5 text-primary" />
                   </div>
-                  <span className="text-[10px] text-primary font-medium shrink-0">Adicionar</span>
+                  <div className="flex flex-col gap-0.5 flex-1 min-w-0">
+                    <span className="text-[10px] font-bold text-primary uppercase tracking-widest">{datajudResult.tribunal_sigla}</span>
+                    <span className="text-xs font-mono text-muted-foreground">{datajudResult.numero}</span>
+                    <span className="text-sm font-bold text-foreground truncate">{datajudResult.assunto}</span>
+                    <p className="text-[11px] text-muted-foreground truncate italic">
+                      {[datajudResult.autor, datajudResult.reu].filter(Boolean).join(" × ")}
+                    </p>
+                  </div>
+                  <div className="flex flex-col items-end gap-1 shrink-0">
+                    <div className="flex items-center gap-1.5 bg-saudavel/10 text-saudavel px-2 py-0.5 rounded text-[10px] font-bold uppercase">
+                      <Plus className="h-3 w-3" /> Abrir
+                    </div>
+                    <span className="text-[9px] text-muted-foreground italic">Clique para sincronizar</span>
+                  </div>
                 </div>
               </CommandItem>
             </CommandGroup>

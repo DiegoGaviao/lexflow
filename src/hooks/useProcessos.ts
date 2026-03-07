@@ -97,6 +97,20 @@ export function useProcessos() {
     }) => {
       if (!user) throw new Error("Não autenticado");
 
+      // Verificar se já existe
+      const { data: existing } = await (supabase
+        .from(lfTable("processos") as any)
+        .select("id")
+        .eq("user_id", user.id)
+        .eq("numero", processoData.numero)
+        .is("deleted_at", null)
+        .single() as any);
+
+      if (existing) {
+        console.log("Processo já cadastrado:", existing.id);
+        return existing;
+      }
+
       const { data: newProc, error } = await (supabase
         .from(lfTable("processos") as any)
         .insert({
@@ -106,10 +120,10 @@ export function useProcessos() {
           assunto: processoData.assunto || null,
           autor: processoData.autor || null,
           reu: processoData.reu || null,
-          responsavel: processoData.responsavel || null,
+          responsavel: processoData.responsavel || "Não atribuído",
           uf: processoData.uf || null,
           user_id: user.id,
-          partes: [processoData.autor, processoData.reu].filter(Boolean).join(" × ") || null,
+          partes: [processoData.autor, processoData.reu].filter(Boolean).join(" × ") || "Partes não informadas",
         })
         .select()
         .single() as any);
