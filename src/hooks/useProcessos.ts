@@ -115,39 +115,45 @@ export function useProcessos() {
         return existing;
       }
 
+      console.log("📝 Inserindo processo:", processoData.numero);
       const { data: newProc, error } = await (supabase
         .from(lfTable("processos") as any)
         .insert({
           numero: processoData.numero,
           tribunal: processoData.tribunal,
           tribunal_sigla: processoData.tribunal_sigla,
-          assunto: processoData.assunto || null,
-          autor: processoData.autor || null,
-          reu: processoData.reu || null,
+          assunto: processoData.assunto || "Sem assunto",
+          autor: processoData.autor || "Não informado",
+          reu: processoData.reu || "Não informado",
           responsavel: processoData.responsavel || "Não atribuído",
           uf: processoData.uf || null,
           user_id: user.id,
           partes: [processoData.autor, processoData.reu].filter(Boolean).join(" × ") || "Partes não informadas",
         })
-        .select()
+        .select("id")
         .single() as any);
 
-      if (error) throw error;
+      if (error) {
+        console.error("❌ Erro ao inserir processo:", error);
+        throw error;
+      }
 
       if (newProc && processoData.movimentacoes && processoData.movimentacoes.length > 0) {
+        console.log(`📜 Inserindo ${processoData.movimentacoes.length} movimentações...`);
         const movsToInsert = processoData.movimentacoes.map(m => ({
           processo_id: newProc.id,
           data: m.data,
           descricao: m.descricao,
           tipo: m.tipo || "outro"
         }));
-        await (supabase.from(lfTable("movimentacoes") as any).insert(movsToInsert) as any);
+        const { error: movError } = await (supabase.from(lfTable("movimentacoes") as any).insert(movsToInsert) as any);
+        if (movError) console.warn("⚠️ Erro ao inserir movimentações (não fatal):", movError);
       }
 
-      await fetchProcessos();
+      console.log("✅ Processo cadastrado com sucesso!");
       return newProc;
     },
-    [user, fetchProcessos]
+    [user]
   );
 
   const updateProcessoStatus = useCallback(
